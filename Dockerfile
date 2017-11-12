@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 AS ubuntu-opengl
 #FROM dockcross/base:latest
 #MAINTAINER Matt McCormick <matt.mccormick@kitware.com>
 
@@ -66,3 +66,31 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url=$VCS_URL \
       org.label-schema.schema-version="1.0"
+
+FROM ubuntu-opengl AS ubuntu-kivy
+
+# Set the working directory to /app
+WORKDIR /home/user
+
+# MTDev is not supported by your version of linux
+RUN apt-get install libmtdev1
+
+RUN apt-get update
+RUN apt-get -y install apt-utils
+RUN apt-get -y install python2.7
+RUN apt-get -y install software-properties-common python-software-properties
+RUN add-apt-repository ppa:kivy-team/kivy
+RUN apt-get -y install python-pygments python-docutils
+RUN apt-get -y install python-kivy
+RUN apt-get -y install python-kivy-examples
+
+
+FROM ubuntu-kivy AS kivy-pycharm
+
+WORKDIR /home/user
+
+COPY pycharm-community-2017.2.4.tar.gz .
+
+RUN tar -xvzf pycharm-community-2017.2.4.tar.gz
+
+
